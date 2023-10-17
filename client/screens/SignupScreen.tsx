@@ -3,9 +3,12 @@ import {
   View,
   KeyboardAvoidingView,
   TextInput,
-  Pressable
+  Pressable,
+  Image
 } from 'react-native'
 import React, { useState } from 'react'
+import * as ImagePicker from 'expo-image-picker'
+import { BsCloudUpload } from 'react-icons/bs'
 
 type Props = {
   navigation: any
@@ -15,6 +18,23 @@ const SignupScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [avatar, setAvatar] = useState(null)
+
+  const uploadImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1
+    })
+
+    console.log(result)
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri)
+    }
+  }
 
   // HANDLE REGISTER FUNCTION
   const registerHandler = () => {}
@@ -42,6 +62,36 @@ const SignupScreen = ({ navigation }: Props) => {
           value={password}
           onChangeText={text => setPassword(text)}
         />
+
+        <View className='flex gap-6 flex-row items-center justify-center'>
+          <Image
+            source={{
+              uri: avatar
+                ? avatar
+                : 'https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png'
+            }}
+            className='w-[50px] h-[50px] rounded-full '
+          />
+
+          <Pressable
+            onPress={uploadImage}
+            className='flex items-center gap-2 flex-row'
+          >
+            {!avatar ? (
+              <>
+                <Image
+                  source={{
+                    uri: 'https://simpleicon.com/wp-content/uploads/cloud-upload-1.png'
+                  }}
+                  className='w-6 h-6 '
+                />
+                <Text>Upload an Image</Text>
+              </>
+            ) : (
+              <Text>Change Image</Text>
+            )}
+          </Pressable>
+        </View>
         <Pressable
           onPress={() => {
             registerHandler()
