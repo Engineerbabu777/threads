@@ -4,11 +4,14 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Pressable,
-  Image
+  Image,
+  Alert
 } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as ImagePicker from 'expo-image-picker'
 import { BsCloudUpload } from 'react-icons/bs'
+import { useDispatch, useSelector } from 'react-redux'
+import { registerUser } from '../redux/actions/userActions'
 
 type Props = {
   navigation: any
@@ -19,6 +22,18 @@ const SignupScreen = ({ navigation }: Props) => {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState(null)
+  const dispatch = useDispatch()
+  const {error, user,isAuthenticated} = useSelector((state:any) => state.user);
+
+  console.log(user);
+
+
+
+  useEffect(() => {
+    if(error){ 
+      Alert.alert(error)
+    }
+  },[error]);
 
   const uploadImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -37,7 +52,11 @@ const SignupScreen = ({ navigation }: Props) => {
   }
 
   // HANDLE REGISTER FUNCTION
-  const registerHandler = () => {}
+  const registerHandler = () => {
+    // console.log(email, password, name, avatar)
+    // console.log({name, email, password,avatar:'123'})
+    registerUser(name, email, password, avatar)(dispatch)
+  }
 
   return (
     <View className='flex-1 items-center justify-center'>
@@ -93,9 +112,7 @@ const SignupScreen = ({ navigation }: Props) => {
           </Pressable>
         </View>
         <Pressable
-          onPress={() => {
-            registerHandler()
-          }}
+          onPress={registerHandler}
           className='w-full flex items-center justify-center h-[46px] bg-black mt-4'
         >
           <Text className='text-white'>Sign Up</Text>

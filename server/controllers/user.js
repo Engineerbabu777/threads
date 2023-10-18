@@ -2,12 +2,14 @@ const User = require("../models/UserModel");
 const ErrorHandler = require("../utils/ErrorHandler.js");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken.js");
-const cloudinary = require("cloudinary");
+// const cloudinary = require("cloudinary");
 
 // Register user
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
   try {
     const { name, email, password, avatar } = req.body;
+
+    console.log('YES-> ',req.body);
 
     let user = await User.findOne({ email });
     if (user) {
@@ -16,18 +18,18 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
         .json({ success: false, message: "User already exists" });
     }
 
-    if (avatar) {
-      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-        folder: "avatars",
-      });
-    }
+    // if (avatar) {
+    //   const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+    //     folder: "avatars",
+    //   });
+    // }
 
     user = await User.create({
       name,
       email,
       password,
-      avatar: avatar
-        ? { public_id: myCloud.public_id, url: myCloud.secure_url }
+      avatar: false
+        ? { public_id: myCloud?.public_id, url: myCloud.secure_url }
         : null,
     });
 
