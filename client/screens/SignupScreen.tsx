@@ -12,6 +12,7 @@ import * as ImagePicker from 'expo-image-picker'
 import { BsCloudUpload } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 import { registerUser } from '../redux/actions/userActions'
+import axios from 'axios'
 
 type Props = {
   navigation: any
@@ -21,40 +22,106 @@ const SignupScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [avatar, setAvatar] = useState(null)
+  const [avatar, setAvatar] = useState({
+    secure_url:'',
+    public_id:'',
+  })
   const dispatch = useDispatch()
-  const {error, user,isAuthenticated} = useSelector((state:any) => state.user);
+  const { error, user, isAuthenticated } = useSelector(
+    (state: any) => state.user
+  )
 
-  console.log(user);
-
-
+  console.log(user)
 
   useEffect(() => {
-    if(error){ 
+    if (error) {
       Alert.alert(error)
     }
-  },[error]);
+  }, [error])
+
+  const handleUpload = async(image: any) => {
+    console.log('50%');
+
+    const data = new FormData()
+    data.append('file', image)
+    data.append('upload_preset', 'new-data')
+    data.append('cloud_name', 'djo2k58eq')
+    try{
+    console.log('70%');
+
+      const fetchRequestData =  await axios.post('https://api.cloudinary.com/v1_1/djo2k58eq/image/upload',
+         data
+      )
+
+    console.log('90%');
+
+    console.log('RESPONSE DATA HERE-> ',fetchRequestData?.data);
+
+      setAvatar({
+        secure_url:fetchRequestData?.data.secure_url,
+        public_id:fetchRequestData?.data.public_id,
+      });
+
+    // return '12'
+
+      // return fetchRequestData.data;
+
+    } catch(error:any){
+      console.log('ERROR WHILE SAVING IMAGE!',error.message);
+      Alert.alert('Change Image/try again later, ',error?.message)
+    }
+
+   
+
+    
+
+  }
 
   const uploadImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1
-    })
+    console.log('0%');
+    try{
+// No permissions request is necessary for launching the image library
+let data = await ImagePicker.launchImageLibraryAsync({
+  mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  allowsEditing: true,
+  aspect: [1, 1],
+  quality: 0.5
+})
 
-    console.log(result)
+console.log('1%');
 
-    if (!result.canceled) {
-      setAvatar(result.assets[0].uri)
-    }
+if (!data?.canceled) {
+console.log('10%');
+
+
+  let newFile = {
+    uri: data.assets[0].uri,
+    type: `test/${data.assets[0].uri.split('.')[1]}`,
+    name: `test.${data.assets[0].uri.split('.')[1]}`
   }
+
+  handleUpload(newFile)
+
+}
+
+    } catch(error:any){
+      
+      console.log('ERROR WHILE SAVING IMAGE!',error.message);
+      Alert.alert('Change Image/try again later, ',error?.message)
+    }
+
+    
+  }
+
+  // UPLOAD IMAGE TO CLOUD-NARY!
+  // const uploadImageToCloud = async (uri: string) => {}
 
   // HANDLE REGISTER FUNCTION
   const registerHandler = () => {
-    // console.log(email, password, name, avatar)
-    // console.log({name, email, password,avatar:'123'})
+    // SAVE IMAGE IN CLOUD-NARY!
+
+    // uploadImageToCloud(avatar);
+
     registerUser(name, email, password, avatar)(dispatch)
   }
 
@@ -85,8 +152,8 @@ const SignupScreen = ({ navigation }: Props) => {
         <View className='flex gap-6 flex-row items-center justify-center'>
           <Image
             source={{
-              uri: avatar
-                ? avatar
+              uri: avatar?.secure_url
+                ? avatar?.secure_url
                 : 'https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png'
             }}
             className='w-[50px] h-[50px] rounded-full '

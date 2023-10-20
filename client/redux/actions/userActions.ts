@@ -9,10 +9,14 @@ import {
 
 // REGISTER USER ACTION!
 export const registerUser =
-  (name: string, email: string, password: string, avatar: string) =>
+  (name: string, email: string, password: string, avatar: any) =>
   async (dispatch: Dispatch<any>) => {
     try {
+      console.log('1%')
+
       dispatch({ type: userRegisterRequests })
+      console.log('10%%')
+
 
       const config = {
         headers: {
@@ -20,9 +24,11 @@ export const registerUser =
           accept: 'application/json'
         }
       }
+      console.log('20%')
+
 
       const { data } = await axios.post(
-        'http://192.168.138.102:8080/api/v1/registration',
+        'http://192.168.212.106:8080/api/v1/registration',
         {
           name,
           email,
@@ -31,6 +37,8 @@ export const registerUser =
         },
         config
       )
+
+      console.log('60%')
 
       dispatch({
         type: userRegistrationSuccess,

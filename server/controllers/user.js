@@ -1,22 +1,24 @@
-const User = require("../models/UserModel");
-const ErrorHandler = require("../utils/ErrorHandler.js");
-const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const sendToken = require("../utils/jwtToken.js");
+const User = require('../models/UserModel')
+const ErrorHandler = require('../utils/ErrorHandler.js')
+const catchAsyncErrors = require('../middleware/catchAsyncErrors')
+const sendToken = require('../utils/jwtToken.js')
 // const cloudinary = require("cloudinary");
 
 // Register user
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { name, email, password, avatar } = req.body;
+    const { name, email, password, avatar } = req.body
 
-    console.log('YES-> ',req.body);
+    console.log('YES-> ', req.body)
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email })
     if (user) {
       return res
         .status(400)
-        .json({ success: false, message: "User already exists" });
+        .json({ success: false, message: 'User already exists' })
     }
+
+    console.log('YES 2-> ', req.body)
 
     // if (avatar) {
     //   const myCloud = await cloudinary.v2.uploader.upload(avatar, {
@@ -28,67 +30,68 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
       name,
       email,
       password,
-      avatar: false
-        ? { public_id: myCloud?.public_id, url: myCloud.secure_url }
-        : null,
-    });
+      avatar: avatar?.secure_url ? { public_id: avatar?.public_id, url: avatar?.secure_url } : null
+    })
 
-    sendToken(user, 201, res);
+    console.log('YES 3-> ', req.body)
+
+
+    sendToken(user, 201, res)
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message,
-    });
+      message: error.message
+    })
   }
-});
+})
 
 // Login User
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body
 
   if (!email || !password) {
-    return next(new ErrorHandler("Please enter the email & password", 400));
+    return next(new ErrorHandler('Please enter the email & password', 400))
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select('+password')
 
   if (!user) {
     return next(
-      new ErrorHandler("User is not find with this email & password", 401)
-    );
+      new ErrorHandler('User is not find with this email & password', 401)
+    )
   }
-  const isPasswordMatched = await user.comparePassword(password);
+  const isPasswordMatched = await user.comparePassword(password)
 
   if (!isPasswordMatched) {
     return next(
-      new ErrorHandler("User is not find with this email & password", 401)
-    );
+      new ErrorHandler('User is not find with this email & password', 401)
+    )
   }
 
-  sendToken(user, 201, res);
-});
+  sendToken(user, 201, res)
+})
 
 //  Log out user
 exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
-  res.cookie("token", null, {
+  res.cookie('token', null, {
     expires: new Date(Date.now()),
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
+    sameSite: 'none',
+    secure: true
+  })
 
   res.status(200).json({
     success: true,
-    message: "Log out success",
-  });
-});
+    message: 'Log out success'
+  })
+})
 
 //  Get user Details
 exports.userDetails = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id)
 
   res.status(200).json({
     success: true,
-    user,
-  });
-});
+    user
+  })
+})
