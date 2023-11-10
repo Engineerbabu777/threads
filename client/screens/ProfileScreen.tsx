@@ -7,7 +7,7 @@ import React from 'react'
 export default function SearchScreen() {
   return (
     <View>
-      <Text>SearchScreen</Text>
+      <Text>ProfileScreen</Text>
     </View>
   )
 }

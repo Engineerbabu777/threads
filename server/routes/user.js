@@ -14,6 +14,6 @@ router.route("/login").post(loginUser);
 
 router.route("/logout").get(logoutUser);
 
-router.route("/me").get(isAuthenticatedUser, userDetails);
+router.route("/me").get(userDetails);
 
 module.exports = router;

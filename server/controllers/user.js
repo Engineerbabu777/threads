@@ -2,6 +2,9 @@ const User = require('../models/UserModel')
 const ErrorHandler = require('../utils/ErrorHandler.js')
 const catchAsyncErrors = require('../middleware/catchAsyncErrors')
 const sendToken = require('../utils/jwtToken.js')
+const jwt = require('jsonwebtoken')
+const UserModel = require('../models/UserModel')
+require('dotenv').config()
 // const cloudinary = require("cloudinary");
 
 // Register user
@@ -18,23 +21,14 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
         .json({ success: false, message: 'User already exists' })
     }
 
-    console.log('YES 2-> ', req.body)
-
-    // if (avatar) {
-    //   const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-    //     folder: "avatars",
-    //   });
-    // }
-
     user = await User.create({
       name,
       email,
       password,
-      avatar: avatar?.secure_url ? { public_id: avatar?.public_id, url: avatar?.secure_url } : null
+      avatar: avatar?.secure_url
+        ? { public_id: avatar?.public_id, url: avatar?.secure_url }
+        : null
     })
-
-    console.log('YES 3-> ', req.body)
-
 
     sendToken(user, 201, res)
   } catch (error) {
@@ -46,30 +40,58 @@ exports.createUser = catchAsyncErrors(async (req, res, next) => {
 })
 
 // Login User
-exports.loginUser = catchAsyncErrors(async (req, res, next) => {
-  const { email, password } = req.body
+exports.loginUser = async (req, res) => {
+  try {
+    console.log('backend -> 1')
+    const { email, password } = req.body
 
-  if (!email || !password) {
-    return next(new ErrorHandler('Please enter the email & password', 400))
+    if (!email || !password) {
+      return res.status(404).json({
+        message: 'INVALID DATA',
+        error: true
+      })
+    }
+    console.log('backend -> 2')
+
+    const user = await User.findOne({ email }).select('+password')
+
+    console.log('backend -> 3')
+
+    console.log({ user })
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'USER NOT FOUND',
+        error: true
+      })
+    }
+
+    console.log('backend -> 4')
+
+    const isPasswordMatched = await user.comparePassword(password)
+
+    if (!isPasswordMatched) {
+      return res.status(401).json({
+        error: true,
+        message: 'Invalid password!'
+      })
+    }
+
+    console.log('backend -> 5')
+
+    const token = jwt.sign(user?._id.toString(), '123456789')
+
+    console.log('SENDING TOKEN: ', token)
+    res.status(201).json({
+      success: true,
+      user,
+      token
+    })
+  } catch (error) {
+    console.log('ERROR LOGIN:', error.message)
+    res.status(500).json({ error: true, message: 'FAILED USER LOAD', error })
   }
-
-  const user = await User.findOne({ email }).select('+password')
-
-  if (!user) {
-    return next(
-      new ErrorHandler('User is not find with this email & password', 401)
-    )
-  }
-  const isPasswordMatched = await user.comparePassword(password)
-
-  if (!isPasswordMatched) {
-    return next(
-      new ErrorHandler('User is not find with this email & password', 401)
-    )
-  }
-
-  sendToken(user, 201, res)
-})
+}
 
 //  Log out user
 exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
@@ -87,11 +109,29 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
 })
 
 //  Get user Details
-exports.userDetails = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id)
+exports.userDetails = async (req, res) => {
+  // const user = await User.findById(req.user.id)
 
-  res.status(200).json({
-    success: true,
-    user
-  })
-})
+  try {
+    const token = req.query.userId
+    console.log(req.query)
+
+    console.log('backend -> 1', { token, JWT_SECRET: process.env.JWT_SECRET })
+
+    const user = jwt.verify(token, '123456789')
+
+    const find = await UserModel.findById(user)
+
+    if (!find?.email) {
+      return res.status(404).json({ message: 'User Not Found', error: true })
+    }
+
+    res.status(200).json({
+      success: true,
+      user: find
+    })
+  } catch (err) {
+    console.log('EROR: ', err.message)
+    res.status(500).json({ error: true, message: 'FAILED USER LOAD', err })
+  }
+}

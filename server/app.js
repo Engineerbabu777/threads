@@ -10,10 +10,7 @@ app.use(bodyParser.urlencoded({extended:true,limit:"50mb"}));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // config
-if(process.env.NODE_ENV!=="PRODUCTION"){
-    require("dotenv").config({
-        path:".env"
-    })}
+require('dotenv').config();
 
 // Route imports
 const user = require("./routes/user");

@@ -13,6 +13,8 @@ import { BsCloudUpload } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 import { registerUser } from '../redux/actions/userActions'
 import axios from 'axios'
+import { userRegistrationFailed } from '../redux/reducers/userReducers'
+import { useNavigation } from '@react-navigation/native'
 
 type Props = {
   navigation: any
@@ -31,31 +33,34 @@ const SignupScreen = ({ navigation }: Props) => {
     (state: any) => state.user
   )
 
-  console.log(user)
-
   useEffect(() => {
     if (error) {
       Alert.alert(error)
+      dispatch({
+        type: userRegistrationFailed,
+        payload: { error: null }
+      })
+    }
+    if(isAuthenticated){
+      navigation.navigate('Home')
     }
   }, [error])
 
+  console.log(isAuthenticated)
+
+
+
   const handleUpload = async(image: any) => {
-    console.log('50%');
 
     const data = new FormData()
     data.append('file', image)
     data.append('upload_preset', 'new-data')
     data.append('cloud_name', 'djo2k58eq')
     try{
-    console.log('70%');
 
       const fetchRequestData =  await axios.post('https://api.cloudinary.com/v1_1/djo2k58eq/image/upload',
          data
       )
-
-    console.log('90%');
-
-    console.log('RESPONSE DATA HERE-> ',fetchRequestData?.data);
 
       setAvatar({
         secure_url:fetchRequestData?.data.secure_url,
@@ -88,11 +93,8 @@ let data = await ImagePicker.launchImageLibraryAsync({
   quality: 0.5
 })
 
-console.log('1%');
 
 if (!data?.canceled) {
-console.log('10%');
-
 
   let newFile = {
     uri: data.assets[0].uri,
@@ -113,15 +115,12 @@ console.log('10%');
     
   }
 
-  // UPLOAD IMAGE TO CLOUD-NARY!
-  // const uploadImageToCloud = async (uri: string) => {}
 
   // HANDLE REGISTER FUNCTION
   const registerHandler = () => {
     // SAVE IMAGE IN CLOUD-NARY!
 
-    // uploadImageToCloud(avatar);
-
+// console.log('h1')
     registerUser(name, email, password, avatar)(dispatch)
   }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignupScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Tabs from './Tabs';
 
 const Auth = () => {
   const Stack = createNativeStackNavigator();
@@ -15,6 +16,7 @@ const Auth = () => {
     >
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignUpScreen} />
+
     </Stack.Navigator>
   );
 };

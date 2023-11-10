@@ -1,6 +1,16 @@
-import { View, Text, KeyboardAvoidingView, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Pressable,
+  Alert
+} from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { TextInput } from 'react-native'
+import { loadUser, loginUser } from '../redux/actions/userActions'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type Props = {
   navigation: any
@@ -9,10 +19,26 @@ type Props = {
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const dispatch = useDispatch()
+  const { error, isAuthenticated } = useSelector((state: any) => state.user)
+
+  
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Login failed!, ', error)
+    }
+
+    if (isAuthenticated) {
+      loadUser()(dispatch);
+      navigation.navigate('Home')
+      Alert.alert('Login successful!')
+    }
+  }, [isAuthenticated, error])
 
   // HANDLE LOGIN FUNCTION
-  const loginHandler = () => {
-    Alert.alert('Login Success')
+  const loginHandler = (e: any) => {
+    loginUser(email, password)(dispatch)
+    console.log('Login Success')
   }
 
   return (
@@ -33,8 +59,8 @@ const LoginScreen = ({ navigation }: Props) => {
           onChangeText={text => setPassword(text)}
         />
         <Pressable
-          onPress={() => {
-            loginHandler()
+          onPress={(e:any) => {
+            loginHandler(e)
           }}
           className='w-full flex items-center justify-center h-[46px] bg-black mt-4'
         >

@@ -1,13 +1,15 @@
 
 
 import * as React from 'react';
+import {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import Main from './Navigations/Main';
 import Auth from './Navigations/Auth';
 import { Text, View } from 'react-native';
 import Store from './redux/store';
 import { NativeWindStyleSheet } from "nativewind";
-import {Provider} from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
+import { loadUser } from './redux/actions/userActions';
 NativeWindStyleSheet.setOutput({
   default: "native",
 });
@@ -26,17 +28,30 @@ function App() {
 const AppStack = () => {
   const [isLogin,setIsLogin] = React.useState(false);
 
+  const {isAuthenticated,loading} = useSelector((state:any) => state.user)
+
+  React.useEffect(() => {
+    Store.dispatch(loadUser());
+  }, []);
+
   return(
     <>
-    {isLogin ? (
-      <NavigationContainer>
-        <Main />
-      </NavigationContainer>
-    ) : (
-      <NavigationContainer>
-        <Auth />
-      </NavigationContainer>
-    )}
+     {false ? (
+      <Text>Loading...</Text>
+        // <Loader />
+      ) : (
+        <>
+          {isAuthenticated ? (
+            <NavigationContainer>
+              <Main />
+            </NavigationContainer>
+          ) : (
+            <NavigationContainer>
+              <Auth />
+            </NavigationContainer>
+          )}
+        </>
+      )}
   </>
   )
 }
