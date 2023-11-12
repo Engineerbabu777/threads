@@ -33,7 +33,7 @@ export const registerUser =
       console.log('20%')
 
       const { data } = await axios.post(
-        'http://192.168.57.211:8080/api/v1/registration',
+        'http://192.168.159.174:8080/api/v1/registration',
         {
           name,
           email,
@@ -66,7 +66,7 @@ export const loadUser = () => async (dispatch: Dispatch<any>) => {
     console.log({ token })
 
     const response = await axios.get(
-      'http://192.168.57.211:8080/api/v1/me?userId=' + token
+      'http://192.168.159.174:8080/api/v1/me?userId='+token
     )
 
     console.log({ responseData: response.data })
@@ -98,7 +98,7 @@ export const loginUser =
       const config = { headers: { 'Content-Type': 'application/json' } }
 
       const { data } = await axios.post(
-        'http://192.168.57.211:8080/api/v1/login',
+        'http://192.168.159.174:8080/api/v1/login',
         { email, password },
         config
       )
@@ -108,7 +108,7 @@ export const loginUser =
         payload: JSON.stringify(data.user)
       })
 
-      // console.log('20%', { data })
+      console.log('20%', { data })
 
       if (data.token) {
         await AsyncStorage.setItem('token', data.token)
