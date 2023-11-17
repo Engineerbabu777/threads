@@ -116,8 +116,6 @@ exports.userDetails = async (req, res) => {
     const token = req.query.userId
     console.log(req.query)
 
-    console.log('backend -> 1', { token, JWT_SECRET: process.env.JWT_SECRET })
-
     const user = jwt.verify(token, '123456789')
 
     const find = await UserModel.findById(user)

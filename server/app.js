@@ -14,8 +14,11 @@ require('dotenv').config();
 
 // Route imports
 const user = require("./routes/user");
+const post = require("./routes/post");
 
 app.use("/api/v1", user);
+app.use("/api/v1", post);
+
 
 
 

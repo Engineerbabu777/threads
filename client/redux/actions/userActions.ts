@@ -7,6 +7,8 @@ import {
   userLoginFailed,
   userLoginRequest,
   userLoginSuccess,
+  userLogoutRequest,
+  userLogoutSuccess,
   userRegisterRequests,
   userRegistrationFailed,
   userRegistrationSuccess
@@ -33,7 +35,7 @@ export const registerUser =
       console.log('20%')
 
       const { data } = await axios.post(
-        'http://192.168.159.174:8080/api/v1/registration',
+        'http://192.168.35.162:8080/api/v1/registration',
         {
           name,
           email,
@@ -66,13 +68,12 @@ export const loadUser = () => async (dispatch: Dispatch<any>) => {
     console.log({ token })
 
     const response = await axios.get(
-      'http://192.168.159.174:8080/api/v1/me?userId='+token
+      'http://192.168.35.162:8080/api/v1/me?userId=' + token
     )
 
     console.log({ responseData: response.data })
 
     if (response.data.success !== null) {
-
       dispatch({
         type: userLoadSuccess,
         payload: { user: response.data.user }
@@ -98,7 +99,7 @@ export const loginUser =
       const config = { headers: { 'Content-Type': 'application/json' } }
 
       const { data } = await axios.post(
-        'http://192.168.159.174:8080/api/v1/login',
+        'http://192.168.35.162:8080/api/v1/login',
         { email, password },
         config
       )
@@ -122,3 +123,23 @@ export const loginUser =
       })
     }
   }
+
+// log out user
+export const logoutUser = () => async (dispatch: Dispatch<any>) => {
+  try {
+    dispatch({
+      type: userLogoutRequest
+    })
+
+    await AsyncStorage.removeItem('token')
+
+    dispatch({
+      type: userLogoutSuccess,
+      payload: {}
+    })
+  } catch (error) {
+    dispatch({
+      type: 'userLogoutFailed'
+    })
+  }
+}
