@@ -22,7 +22,7 @@ export const createPostAction =
 
       const token = await AsyncStorage.getItem('token');
 
-      const {data} = await axios.post("http://192.168.35.162:8080/api/v1/create-post",
+      const {data} = await axios.post("http://192.168.134.155:8080/api/v1/create-post",
         {title, image, user, replies},
         {
           headers: {
@@ -52,7 +52,7 @@ export const getAllPosts = () => async (dispatch: Dispatch<any>) => {
 
     const token = await AsyncStorage.getItem('token');
 
-    const {data} = await axios.get("http://192.168.35.162:8080/api/v1/get-all-posts?userId="+token, {
+    const {data} = await axios.get("http://192.168.134.155:8080/api/v1/get-all-posts?userId="+token, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

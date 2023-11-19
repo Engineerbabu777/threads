@@ -2,11 +2,14 @@ import axios from 'axios'
 // import { URI } from '../URI'
 import { Dispatch } from 'react'
 import {
+  getUsersRequest,
+  getUsersSuccess,
   userLoadRequests,
   userLoadSuccess,
   userLoginFailed,
   userLoginRequest,
   userLoginSuccess,
+  userLogoutFailed,
   userLogoutRequest,
   userLogoutSuccess,
   userRegisterRequests,
@@ -35,7 +38,7 @@ export const registerUser =
       console.log('20%')
 
       const { data } = await axios.post(
-        'http://192.168.35.162:8080/api/v1/registration',
+        'http://192.168.134.155:8080/api/v1/registration',
         {
           name,
           email,
@@ -62,13 +65,13 @@ export const registerUser =
 // LOAD USER!
 export const loadUser = () => async (dispatch: Dispatch<any>) => {
   try {
-    // dispatch({ type: userLoadRequests })
+    dispatch({ type: userLoadRequests })
     console.log('94')
     const token = await AsyncStorage.getItem('token')
     console.log({ token })
 
     const response = await axios.get(
-      'http://192.168.35.162:8080/api/v1/me?userId=' + token
+      'http://192.168.134.155:8080/api/v1/me?userId=' + token
     )
 
     console.log({ responseData: response.data })
@@ -99,7 +102,7 @@ export const loginUser =
       const config = { headers: { 'Content-Type': 'application/json' } }
 
       const { data } = await axios.post(
-        'http://192.168.35.162:8080/api/v1/login',
+        'http://192.168.134.155:8080/api/v1/login',
         { email, password },
         config
       )
@@ -139,7 +142,39 @@ export const logoutUser = () => async (dispatch: Dispatch<any>) => {
     })
   } catch (error) {
     dispatch({
-      type: 'userLogoutFailed'
+      type: userLogoutFailed
     })
+  }
+}
+
+// get all users!
+export const getAllUsers = () => async (dispatch: Dispatch<any>) => {
+  try {
+    dispatch({
+      type: getUsersRequest,
+    });
+
+    const token = await AsyncStorage.getItem('token')
+
+    console.log({token})
+
+    const { data } = await axios.get(
+      'http://192.168.134.155:8080/api/v1/users?userId='+token,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    )
+
+    console.log({data:data.users,test:123,success:'nons'});
+
+    dispatch({
+      type: getUsersSuccess,
+      payload: data.users,
+    });
+  } catch (error: any) {
+    dispatch({
+      type: 'getUsersFailed',
+      payload: error.response.data.message,
+    });
   }
 }

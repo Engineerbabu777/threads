@@ -3,7 +3,10 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   isAuthenticated: false,
   loading: false,
-  user: null,
+  isLoading: false,
+  user: {},
+  users: [],
+  token: '',
   error: null
 }
 
@@ -38,33 +41,45 @@ export const userSlice = createSlice({
       ;(state.isAuthenticated = false), (state.error = action.payload.error)
     },
     userLoginRequest: state => {
-      state.isAuthenticated = false;
-      state.loading = true;
+      state.isAuthenticated = false
+      state.loading = true
     },
     userLoginSuccess: (state, action) => {
-      state.isAuthenticated = true;
-      state.loading = false;
-      state.user = action.payload;
+      state.isAuthenticated = true
+      state.loading = false
+      state.user = action.payload
     },
     userLoginFailed: (state, action) => {
-      state.isAuthenticated = false;
-      state.loading = false;
-      state.error = action.payload;
-      state.user = {};
+      state.isAuthenticated = false
+      state.loading = false
+      state.error = action.payload
+      state.user = {}
     },
     userLogoutRequest: state => {
-      state.loading = true;
+      state.loading = true
     },
     userLogoutSuccess: state => {
-      state.loading = false;
-      state.isAuthenticated = false;
-      state.user = {};
+      state.loading = false
+      state.isAuthenticated = false
+      state.user = {}
     },
     userLogoutFailed: state => {
-      state.loading = false;
+      state.loading = false
     },
     clearErrors: (state, action) => {
       state.error = null
+    },
+    getUsersRequest: state => {
+      state.isLoading = true
+    },
+    getUsersSuccess: (state, action) => {
+      console.log({payload:action.payload})
+      state.isLoading = false
+      state.users = action.payload
+    },
+    getUsersFailed: (state, action) => {
+      state.isLoading = false
+      state.users = action.payload
     }
   }
 })
@@ -83,6 +98,9 @@ export const {
   userLogoutFailed,
   userLogoutRequest,
   userLogoutSuccess,
-} = userSlice.actions;
+  getUsersFailed,
+  getUsersRequest,
+  getUsersSuccess
+} = userSlice.actions
 
-export const userReducer = userSlice.reducer;
+export const userReducer = userSlice.reducer

@@ -10,6 +10,7 @@ import Store from './redux/store';
 import { NativeWindStyleSheet } from "nativewind";
 import {Provider, useSelector} from 'react-redux';
 import { loadUser } from './redux/actions/userActions';
+import Loader from './common/Loader';
 NativeWindStyleSheet.setOutput({
   default: "native",
 });
@@ -34,11 +35,12 @@ const AppStack = () => {
     Store.dispatch(loadUser());
   }, []);
 
+  console.log({loading})
+
   return(
     <>
-     {false ? (
-      <Text>Loading...</Text>
-        // <Loader />
+     {loading ? (
+        <Loader />
       ) : (
         <>
           {isAuthenticated ? (

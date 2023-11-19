@@ -57,7 +57,7 @@ const ProfileScreen = ({navigation}: Props) => {
             <View>
               <Text className="text-[#000] text-[30px]">{user?.name}</Text>
               <Text className="text-[#0000009d] text-[20px]">
-                {user?.userName}
+                {'@'+user?.name.replace(' ','').toLowerCase()}
               </Text>
             </View>
 
