@@ -1,54 +1,52 @@
-
-
-import * as React from 'react';
-import {useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import Main from './Navigations/Main';
-import Auth from './Navigations/Auth';
-import { Text, View } from 'react-native';
-import Store from './redux/store';
-import { NativeWindStyleSheet } from "nativewind";
-import {Provider, useDispatch, useSelector} from 'react-redux';
-import { getAllUsers, loadUser } from './redux/actions/userActions';
-import Loader from './common/Loader';
+import * as React from 'react'
+import { useEffect } from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import Main from './Navigations/Main'
+import Auth from './Navigations/Auth'
+import { Text, View } from 'react-native'
+import Store from './redux/store'
+import { NativeWindStyleSheet } from 'nativewind'
+import { Provider, useDispatch, useSelector } from 'react-redux'
+import { getAllUsers, loadUser } from './redux/actions/userActions'
+import Loader from './common/Loader'
+import { NativeBaseProvider } from 'native-base'
 NativeWindStyleSheet.setOutput({
-  default: "native",
-});
+  default: 'native'
+})
 
-function App() {
-
+function App () {
   return (
     <Provider store={Store}>
       <AppStack />
     </Provider>
-   
-  );
+  )
 }
 
-
 const AppStack = () => {
-  const [isLogin,setIsLogin] = React.useState(false);
+  const [isLogin, setIsLogin] = React.useState(false)
 
-  const {isAuthenticated,loading} = useSelector((state:any) => state.user)
+  const { isAuthenticated, loading } = useSelector((state: any) => state.user)
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   React.useEffect(() => {
-    Store.dispatch(loadUser());
+    Store.dispatch(loadUser())
     getAllUsers()(dispatch)
-  }, []);
+  }, [])
 
-  console.log({loading})
+  console.log({ loading })
 
-  return(
+  return (
     <>
-     {loading ? (
+      {loading ? (
         <Loader />
       ) : (
         <>
           {isAuthenticated ? (
             <NavigationContainer>
-              <Main />
+              <NativeBaseProvider>
+                <Main />
+              </NativeBaseProvider>
             </NavigationContainer>
           ) : (
             <NavigationContainer>
@@ -57,7 +55,7 @@ const AppStack = () => {
           )}
         </>
       )}
-  </>
+    </>
   )
 }
-export default App;
+export default App

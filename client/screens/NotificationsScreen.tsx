@@ -40,10 +40,10 @@ const NotificationScreen = ({ navigation }: Props) => {
   console.log({ notifications })
 
   useEffect(() => {
-    if (user) {
+    if (user?._id) {
       getNotifications(user)(dispatch)
     }
-  }, [user])
+  }, [user?._id])
 
   console.log("HELLO BOY!")
 

@@ -1,8 +1,13 @@
-import axios from 'axios';
+import axios from 'axios'
 // import {URI} from '../URI';
-import {Dispatch} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAllPostsFailed, postCreateSuccess } from '../reducers/postReducer';
+import { Dispatch } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {
+  getAllPostsFailed,
+  getAllPostsRequest,
+  getAllPostsSuccess,
+  postCreateSuccess
+} from '../reducers/postReducer'
 
 // create post
 export const createPostAction =
@@ -10,153 +15,157 @@ export const createPostAction =
     title: string,
     image: string,
     user: Object,
-    replies: Array<{title: string; image: string; user: any}>,
+    replies: Array<{ title: string; image: string; user: any }>
   ) =>
   async (dispatch: Dispatch<any>) => {
     try {
       dispatch({
-        type: 'postCreateRequest',
-      });
+        type: 'postCreateRequest'
+      })
 
-      console.log({data:{title, image,user,replies}})
+      console.log({ data: { title, image, user, replies } })
 
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token')
 
-      const {data} = await axios.post("http://192.168.169.136:8080/api/v1/create-post",
-        {title, image, user, replies},
+      const { data } = await axios.post(
+        'http://192.168.169.136:8080/api/v1/create-post',
+        { title, image, user, replies },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
       console.log(data)
       dispatch({
         type: postCreateSuccess,
-        payload: data.user,
-      });
+        payload: data.user
+      })
     } catch (error: any) {
       dispatch({
         type: 'postCreateFailed',
-        payload: error.response.data.message,
-      });
+        payload: error.response.data.message
+      })
     }
-  };
+  }
 
 // get all Posts
 export const getAllPosts = () => async (dispatch: Dispatch<any>) => {
   try {
     dispatch({
-      type: 'getAllPostsRequest',
-    });
+      type: getAllPostsRequest
+    })
 
-    const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem('token')
 
-    const {data} = await axios.get("http://192.168.169.136:8080/api/v1/get-all-posts?userId="+token, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const { data } = await axios.get(
+      'http://192.168.169.136:8080/api/v1/get-all-posts?userId=' + token,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
 
     dispatch({
-      type: 'getAllPostsSuccess',
-      payload: data.posts,
-    });
+      type: getAllPostsSuccess,
+      payload: data.posts
+    })
   } catch (error: any) {
     dispatch({
       type: getAllPostsFailed,
-      payload: error.response.data.message,
-    });
+      payload: error.response.data.message
+    })
   }
-};
+}
 
-// interface LikesParams {
-//   postId?: string | null;
-//   posts: any;
-//   user: any;
-//   replyId?: string | null;
-//   title?: string;
-//   singleReplyId?: string;
-// }
+interface LikesParams {
+  postId?: string | null
+  posts: any
+  user: any
+  // replyId?: string | null;
+  // title?: string;
+  // singleReplyId?: string;
+}
 
-// // add likes
-// export const addLikes =
-//   ({postId, posts, user}: LikesParams) =>
-//   async (dispatch: Dispatch<any>) => {
-//     try {
-//       const token = await AsyncStorage.getItem('token');
+// add likes
+export const addLikes =
+  ({ postId, posts, user }: LikesParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+      const token = await AsyncStorage.getItem('token')
 
-//       const updatedPosts = posts.map((userObj: any) =>
-//         userObj._id === postId
-//           ? {
-//               ...userObj,
-//               likes: [
-//                 ...userObj.likes,
-//                 {
-//                   userName: user.name,
-//                   userId: user._id,
-//                   userAvatar: user.avatar.url,
-//                   postId,
-//                 },
-//               ],
-//             }
-//           : userObj,
-//       );
+      const updatedPosts = posts.map((userObj: any) =>
+        userObj._id === postId
+          ? {
+              ...userObj,
+              likes: [
+                ...userObj.likes,
+                {
+                  userName: user.name,
+                  userId: user._id,
+                  userAvatar: user.avatar.url,
+                  postId
+                }
+              ]
+            }
+          : userObj
+      )
 
-//       dispatch({
-//         type: 'getAllPostsSuccess',
-//         payload: updatedPosts,
-//       });
+      dispatch({
+        type: getAllPostsSuccess,
+        payload: updatedPosts
+      })
 
-//       await axios.put(
-//         `${URI}/update-likes`,
-//         {postId},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         },
-//       );
-//     } catch (error: any) {
-//       console.log(error, 'error');
-//     }
-//   };
+      await axios.put(
+        'http://192.168.169.136:8080/api/v1/update-likes',
+        { postId, user },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+    } catch (error: any) {
+      console.log(error, 'error')
+    }
+  }
 
-// // remove likes
-// export const removeLikes =
-//   ({postId, posts, user}: LikesParams) =>
-//   async (dispatch: Dispatch<any>) => {
-//     try {
-//       const token = await AsyncStorage.getItem('token');
+// remove likes
+export const removeLikes =
+  ({ postId, posts, user }: LikesParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+      const token = await AsyncStorage.getItem('token')
 
-//       const updatedPosts = posts.map((userObj: any) =>
-//         userObj._id === postId
-//           ? {
-//               ...userObj,
-//               likes: userObj.likes.filter(
-//                 (like: any) => like.userId !== user._id,
-//               ),
-//             }
-//           : userObj,
-//       );
-//       dispatch({
-//         type: 'getAllPostsSuccess',
-//         payload: updatedPosts,
-//       });
+      const updatedPosts = posts.map((userObj: any) =>
+        userObj._id === postId
+          ? {
+              ...userObj,
+              likes: userObj.likes.filter(
+                (like: any) => like.userId !== user._id
+              )
+            }
+          : userObj
+      )
+      dispatch({
+        type: getAllPostsSuccess,
+        payload: updatedPosts
+      })
 
-//       await axios.put(
-//         `${URI}/update-likes`,
-//         {postId},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         },
-//       );
-//     } catch (error) {
-//       console.error('Error following likes:', error);
-//     }
-//   };
+      await axios.put(
+        'http://192.168.169.136:8080/api/v1/update-likes',
+        { postId, user },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+    } catch (error) {
+      console.error('Error following likes:', error)
+    }
+  }
 
 // // add likes to reply
 // export const addLikesToReply =

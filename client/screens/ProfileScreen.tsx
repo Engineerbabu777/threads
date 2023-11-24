@@ -92,7 +92,7 @@ const ProfileScreen = ({navigation}: Props) => {
                 })
               }>
               <Text className="text-[16px] text-[#444]">
-                {user?.followers.length} followers
+                {user?.followers?.length} followers
               </Text>
             </TouchableOpacity>
           </View>
