@@ -8,8 +8,8 @@ import Auth from './Navigations/Auth';
 import { Text, View } from 'react-native';
 import Store from './redux/store';
 import { NativeWindStyleSheet } from "nativewind";
-import {Provider, useSelector} from 'react-redux';
-import { loadUser } from './redux/actions/userActions';
+import {Provider, useDispatch, useSelector} from 'react-redux';
+import { getAllUsers, loadUser } from './redux/actions/userActions';
 import Loader from './common/Loader';
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -31,8 +31,11 @@ const AppStack = () => {
 
   const {isAuthenticated,loading} = useSelector((state:any) => state.user)
 
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
     Store.dispatch(loadUser());
+    getAllUsers()(dispatch)
   }, []);
 
   console.log({loading})

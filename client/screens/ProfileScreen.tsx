@@ -57,13 +57,13 @@ const ProfileScreen = ({navigation}: Props) => {
             <View>
               <Text className="text-[#000] text-[30px]">{user?.name}</Text>
               <Text className="text-[#0000009d] text-[20px]">
-                {'@'+user?.name.replace(' ','').toLowerCase()}
+                {'@'+user?.name?.replace(' ','')?.toLowerCase()}
               </Text>
             </View>
 
             <View className="relative">
               <Image
-                source={{uri: user?.avatar.url}}
+                source={{uri: user?.avatar?.url}}
                 height={80}
                 width={80}
                 borderRadius={100}

@@ -11,6 +11,7 @@ import {
   import { SafeAreaView } from 'react-native-safe-area-context';
   import React, {useEffect, useState} from 'react';
   import {useDispatch, useSelector} from 'react-redux';
+import { followUserAction, unfollowUserAction } from '../redux/actions/userActions';
 //   import {
 //     followUserAction,
 //     unfollowUserAction,
@@ -33,11 +34,11 @@ import {
     const [data, setData] = useState(d);
     const dispatch = useDispatch();
   
-    // useEffect(() => {
-    //   if (users) {
-    //     const userData = users.find((i: any) => i._id === d?._id);
-    //     setData(userData);
-    //   }
+    useEffect(() => {
+      if (users) {
+        const userData = users.find((i: any) => i._id === d?._id);
+        setData(userData);
+      }
     //   if (posts) {
     //     const myPosts = posts.filter((post: any) =>
     //       post.replies.some((reply: any) => reply.user._id === d._id),
@@ -48,27 +49,27 @@ import {
     //     const myUserPosts = posts.filter((post: any) => post.user._id === d._id);
     //     setPostsData(myUserPosts);
     //   }
-    // }, [users, route.params.item, posts, d]);
+    }, [users, route.params.item, posts, d]);
   
-    // const FollowUnfollowHandler = async () => {
-    //   try {
-    //     if (data.followers.find((i: any) => i.userId === user._id)) {
-    //       await unfollowUserAction({
-    //         userId: user._id,
-    //         users,
-    //         followUserId: data._id,
-    //       })(dispatch);
-    //     } else {
-    //       await followUserAction({
-    //         userId: user._id,
-    //         users,
-    //         followUserId: data._id,
-    //       })(dispatch);
-    //     }
-    //   } catch (error) {
-    //     console.log(error, 'error');
-    //   }
-    // };
+    const FollowUnfollowHandler = async () => {
+      try {
+        if (data.followers.find((i: any) => i.userId === user._id)) {
+          await unfollowUserAction({
+            userId: user._id,
+            users,
+            followUserId: data._id,
+          })(dispatch);
+        } else {
+          await followUserAction({
+            userId: user._id,
+            users,
+            followUserId: data._id,
+          })(dispatch);
+        }
+      } catch (error) {
+        console.log(error, 'error');
+      }
+    };
   
     return (
       <>
@@ -102,9 +103,9 @@ import {
                       <Text className="pt-3 text-[22px] text-black">
                         {data.name}
                       </Text>
-                      {data.userName && (
+                      {data.name && (
                         <Text className="py-2 text-[16px] text-[#0000009d]">
-                          {data.userName}
+                          {"@"+data.name.toLowerCase().replace(/\s/g, '')+Math.floor(Math.random()*300)}
                         </Text>
                       )}
                       {data.bio && (
@@ -149,7 +150,8 @@ import {
                   </View>
                   <TouchableOpacity
                     className="mt-2 rounded-[8px] w-full flex-row justify-center items-center h-[38px] bg-black"
-                    onPress={FollowUnfollowHandler}>
+                    onPress={FollowUnfollowHandler}
+                    >
                     <Text className="text-white text-[18px]">
                       {data.followers.find((i: any) => i.userId === user._id)
                         ? 'Following'
