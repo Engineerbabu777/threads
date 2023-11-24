@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { getAllUsers } from '../redux/actions/userActions'
+import { followUserAction, getAllUsers, unfollowUserAction } from '../redux/actions/userActions'
 // import {
 //   followUserAction,
 //   getAllUsers,
@@ -34,9 +34,9 @@ const SearchScreen = ({ navigation }: Props) => {
   const { users, user, isLoading } = useSelector((state: any) => state.user)
   const dispatch = useDispatch()
 
-  console.log('user: ', user)
+  // console.log('user: ', user)
 
-  console.log({'hehehe':11,users,data})
+  // console.log({'hehehe':11,users,data})
 
   useEffect(() => {
     getAllUsers()(dispatch);
@@ -93,17 +93,17 @@ const SearchScreen = ({ navigation }: Props) => {
                 const handleFollowUnfollow = async (e: any) => {
                   try {
                     if (e.followers.find((i: any) => i.userId === user._id)) {
-                      // await unfollowUserAction({
-                      //   userId: user._id,
-                      //   users,
-                      //   followUserId: e._id,
-                      // })(dispatch);
+                      await unfollowUserAction({
+                        userId: user._id,
+                        users,
+                        followUserId: e._id,
+                      })(dispatch);
                     } else {
-                      // await followUserAction({
-                      //   userId: user._id,
-                      //   users,
-                      //   followUserId: e._id,
-                      // })(dispatch);
+                      await followUserAction({
+                        userId: user._id,
+                        users,
+                        followUserId: e._id,
+                      })(dispatch);
                     }
                   } catch (error) {
                     console.log(error, 'error');
@@ -155,12 +155,11 @@ const SearchScreen = ({ navigation }: Props) => {
                             onPress={() => handleFollowUnfollow(item)}
                           >
                             <Text className='text-black'>
-                              {/* {item.followers.find(
+                              {item.followers.find(
                                 (i: any) => i.userId === user._id,
                               )
                                 ? 'Following'
-                                : 'Follow'} */}
-                                Follow
+                                : 'Follow'}
                             </Text>
                           </TouchableOpacity>
                         </View>

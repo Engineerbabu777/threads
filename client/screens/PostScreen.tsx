@@ -5,7 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context'

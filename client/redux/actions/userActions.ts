@@ -38,7 +38,7 @@ export const registerUser =
       console.log('20%')
 
       const { data } = await axios.post(
-        'http://192.168.134.155:8080/api/v1/registration',
+        'http://192.168.169.136:8080/api/v1/registration',
         {
           name,
           email,
@@ -71,7 +71,7 @@ export const loadUser = () => async (dispatch: Dispatch<any>) => {
     console.log({ token })
 
     const response = await axios.get(
-      'http://192.168.134.155:8080/api/v1/me?userId=' + token
+      'http://192.168.169.136:8080/api/v1/me?userId=' + token
     )
 
     console.log({ responseData: response.data })
@@ -102,7 +102,7 @@ export const loginUser =
       const config = { headers: { 'Content-Type': 'application/json' } }
 
       const { data } = await axios.post(
-        'http://192.168.134.155:8080/api/v1/login',
+        'http://192.168.169.136:8080/api/v1/login',
         { email, password },
         config
       )
@@ -159,13 +159,13 @@ export const getAllUsers = () => async (dispatch: Dispatch<any>) => {
     console.log({token})
 
     const { data } = await axios.get(
-      'http://192.168.134.155:8080/api/v1/users?userId='+token,
+      'http://192.168.169.136:8080/api/v1/users?userId='+token,
       {
         headers: { Authorization: `Bearer ${token}` }
       }
     )
 
-    console.log({data:data.users,test:123,success:'nons'});
+    // console.log({data:data.users,test:123,success:'nons'});
 
     dispatch({
       type: getUsersSuccess,
@@ -178,3 +178,89 @@ export const getAllUsers = () => async (dispatch: Dispatch<any>) => {
     });
   }
 }
+
+interface FollowUnfollowParams {
+  userId: string;
+  followUserId: string;
+  users: any;
+}
+
+// follow user
+export const followUserAction =
+  ({userId, users, followUserId}: FollowUnfollowParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+
+      console.log({users, userId, followUserId})
+      const token = await AsyncStorage.getItem('token');
+
+      const updatedUsers = users.map((userObj: any) =>
+        userObj._id === followUserId
+          ? {
+              ...userObj,
+              followers: [...userObj.followers, {userId}],
+            }
+          : userObj,
+      );
+
+      // update our users state
+      dispatch({
+        type: getUsersSuccess,
+        payload: updatedUsers,
+      });
+
+      console.log("here 1")
+
+      await axios.put(
+        "http://192.168.169.136:8080/api/v1/add-user",
+        {followUserId,userId},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log("here 2")
+
+    } catch (error) {
+      console.log('Error following user:', error.message);
+    }
+  };
+
+// unfollow user
+export const unfollowUserAction =
+  ({userId, users, followUserId}: FollowUnfollowParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const updatedUsers = users.map((userObj: any) =>
+        userObj._id === followUserId
+          ? {
+              ...userObj,
+              followers: userObj.followers.filter(
+                (follower: any) => follower.userId !== userId,
+              ),
+            }
+          : userObj,
+      );
+
+      // update our users state
+      dispatch({
+        type: getUsersSuccess,
+        payload: updatedUsers,
+      });
+
+      await axios.put(
+        "http://192.168.169.136:8080/api/v1/add-user",
+        {followUserId,userId},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      console.log('Error unfollowing user:', error.message);
+    }
+  };

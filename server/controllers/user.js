@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 const UserModel = require('../models/UserModel')
 require('dotenv').config()
 // const cloudinary = require("cloudinary");
-
+const Notification = require('../models/NotificationModel.js');
 // Register user
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -131,5 +131,97 @@ exports.userDetails = async (req, res) => {
   } catch (err) {
     console.log('EROR: ', err.message)
     res.status(500).json({ error: true, message: 'FAILED USER LOAD', err })
+  }
+}
+
+// get all users!
+exports.getAllUsers = async (req, res) => {
+  try {
+    const loggedInuser = req.query.userId
+
+    console.log({ loggedInuser })
+
+    const user = jwt.verify(loggedInuser, '123456789')
+
+    console.log({ user })
+
+    const users = await User.find({ _id: { $ne: user } }).sort({
+      createdAt: -1
+    })
+
+    console.log(1, { users })
+
+    res.status(201).json({
+      success: true,
+      users
+    })
+  } catch (err) {
+    console.log('GETTING USERS ERROR: ', err.message)
+  }
+}
+
+// Follow and unfollow user
+exports.followUnfollowUser = async (req, res) => {
+  try {
+    console.log('api hitted')
+    const user = req.body.userId
+    const { followUserId } = req.body
+
+    const loggedInUser = await User.findById(user);
+
+    const isFollowedBefore = loggedInUser.following.find(
+      item => item.userId === followUserId
+    )
+
+    const loggedInUserId = loggedInUser._id
+
+    if (isFollowedBefore) {
+      // REMOVING THE FOLLOWERS OF THE FOLLOWED USER!!
+      await User.updateOne(
+        { _id: followUserId },
+        { $pull: { followers: { userId: loggedInUserId } } }
+      )
+      // REMOVING THAT USER FROM MY FOLLOWINGS!
+      await User.updateOne(
+        { _id: loggedInUserId },
+        { $pull: { following: { userId: followUserId } } }
+      );
+
+      await Notification.deleteOne({
+        "creator._id": loggedInUserId,
+        userId: followUserId,
+        type: "Follow",
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'User unFollowed successfully'
+      })
+    } else {
+      await User.updateOne(
+        { _id: followUserId },
+        { $push: { followers: { userId: loggedInUserId } } }
+      );
+
+      await User.updateOne(
+        { _id: loggedInUserId },
+        { $push: { following: { userId: followUserId } } }
+      );
+
+      await Notification.create({
+        creator: req.user,
+        type: "Follow",
+        title: "Followed you",
+        userId: followUserId,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'User followed successfully'
+      })
+    }
+  } catch (error) {
+    console.log({error:error.message})
+    return next(new ErrorHandler(error.message, 401))
   }
 }
