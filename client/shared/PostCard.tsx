@@ -15,7 +15,7 @@ import {
 //     removeLikes,
 //   } from '../../redux/actions/postAction';
   import axios from 'axios';
-import { addLikes, getAllPosts } from '../redux/actions/postActions';
+import { addLikes, getAllPosts, removeLikes } from '../redux/actions/postActions';
 import PostDetailsCard from './PostCardDetails';
 //   import PostDetailsCard from './PostDetailsCard';
   
@@ -42,8 +42,10 @@ import PostDetailsCard from './PostCardDetails';
     const formattedDuration = getTimeDuration(time);
   
     const profileHandler = async (e: any) => {
+
+      // console.log({_id:item.user._id})
       await axios
-        .get("http://192.168.169.136/api/v1/get-user/"+e._id, {
+        .get("http://192.168.169.136:8080/api/v1/get-user/"+e?._id, {
           headers: {Authorization: `Bearer ${token}`},
         })
         .then(res => {
@@ -61,7 +63,7 @@ import PostDetailsCard from './PostCardDetails';
       if (item.likes.length !== 0) {
         const isLikedBefore = item.likes.find((i: any) => i.userId === user._id);
         if (isLikedBefore) {
-          // removeLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
+          removeLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
         } else {
           addLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
         }

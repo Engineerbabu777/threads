@@ -12,6 +12,7 @@ import {
   import React, {useEffect, useState} from 'react';
   import {useDispatch, useSelector} from 'react-redux';
 import { followUserAction, unfollowUserAction } from '../redux/actions/userActions';
+import PostCard from '../shared/PostCard';
 //   import {
 //     followUserAction,
 //     unfollowUserAction,
@@ -186,14 +187,14 @@ import { followUserAction, unfollowUserAction } from '../redux/actions/userActio
                   {active === 0 && (
                     <>
                       {postData &&
-                        postData.map((item: any) => (
+                        postData?.map((item: any) => (
                           <PostCard
                             navigation={navigation}
                             key={item._id}
                             item={item}
                           />
                         ))}
-                      {postData.length === 0 && (
+                      {postData?.length === 0 && (
                         <Text className="text-black py-10 text-center text-[18px]">
                           No Post yet!
                         </Text>

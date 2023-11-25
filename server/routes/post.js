@@ -1,7 +1,10 @@
 const express = require('express')
 const {
   createPost,
-    getAllPosts,
+  getAllPosts,
+  updateLikes,
+  addReplies,
+  updateReplyLikes
   //   updateLikes,
   //   addReplies,
   //   updateReplyLikes,
@@ -15,17 +18,15 @@ const router = express.Router()
 
 router.route('/create-post').post(createPost)
 
-router.route("/get-all-posts").get(getAllPosts);
+router.route('/get-all-posts').get(getAllPosts)
 
-// router.route("/update-likes").put(isAuthenticatedUser, updateLikes);
+router.route('/update-likes').put(updateLikes)
 
-// router.route("/add-replies").put(isAuthenticatedUser, addReplies);
+router.route('/add-replies').put(addReplies)
 
-// router.route("/add-reply").put(isAuthenticatedUser, addReply);
+// router.route("/add-reply").put(addReply);
 
-// router
-//   .route("/update-replies-react")
-//   .put(isAuthenticatedUser, updateReplyLikes);
+router.route('/update-replies-react').put(updateReplyLikes)
 
 // router
 //   .route("/update-reply-react")

@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 const UserModel = require('../models/UserModel')
 require('dotenv').config()
 // const cloudinary = require("cloudinary");
-const Notification = require('../models/NotificationModel.js');
+const Notification = require('../models/NotificationModel.js')
 // Register user
 exports.createUser = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -167,13 +167,15 @@ exports.followUnfollowUser = async (req, res) => {
     const user = req.body.userId
     const { followUserId } = req.body
 
-    const loggedInUser = await User.findById(user);
+    const loggedInUser = await User.findById(user)
 
-    const isFollowedBefore = loggedInUser.following.find(
+    const isFollowedBefore = loggedInUser?.following?.find(
       item => item.userId === followUserId
     )
 
-    const loggedInUserId = loggedInUser._id
+    const loggedInUserId = loggedInUser?._id
+
+    console.log({loggedInUser})
 
     if (isFollowedBefore) {
       // REMOVING THE FOLLOWERS OF THE FOLLOWED USER!!
@@ -185,13 +187,13 @@ exports.followUnfollowUser = async (req, res) => {
       await User.updateOne(
         { _id: loggedInUserId },
         { $pull: { following: { userId: followUserId } } }
-      );
+      )
 
       await Notification.deleteOne({
-        "creator._id": loggedInUserId,
+        'creator._id': loggedInUserId,
         userId: followUserId,
-        type: "Follow",
-      });
+        type: 'Follow'
+      })
 
       res.status(200).json({
         success: true,
@@ -201,19 +203,19 @@ exports.followUnfollowUser = async (req, res) => {
       await User.updateOne(
         { _id: followUserId },
         { $push: { followers: { userId: loggedInUserId } } }
-      );
+      )
 
       await User.updateOne(
         { _id: loggedInUserId },
         { $push: { following: { userId: followUserId } } }
-      );
+      )
 
       await Notification.create({
-        creator: req.user,
-        type: "Follow",
-        title: "Followed you",
-        userId: followUserId,
-      });
+        creator: loggedInUser,
+        type: 'Follow',
+        title: 'Followed you',
+        userId: followUserId
+      })
 
       res.status(200).json({
         success: true,
@@ -221,7 +223,89 @@ exports.followUnfollowUser = async (req, res) => {
       })
     }
   } catch (error) {
-    console.log({error:error.message})
+    console.log({ error: error.message })
     return next(new ErrorHandler(error.message, 401))
   }
 }
+
+// get user notification
+exports.getNotification = async (req, res) => {
+  try {
+
+    console.log(req?.query)
+    const notifications = await Notification.find({ userId: req.query.userId }).sort(
+      { createdAt: -1 }
+    )
+
+    res.status(201).json({
+      success: true,
+      notifications
+    })
+  } catch (error) {
+    res.status(500).json({ error: true, message: 'NOTIFICATIONS ERROR: ', error:error.message })
+
+  }
+}
+
+// get single user
+exports.getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    res.status(201).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ error: true, message: 'GET USER ERROR: ', error:error.message })
+
+  }
+};
+
+// update user avatar
+// exports.updateUserAvatar = catchAsyncErrors(async (req, res, next) => {
+//   try {
+//     let existsUser = await User.findById(req.user.id);
+
+//     if (req.body.avatar !== "") {
+//       const imageId = existsUser.avatar.public_id;
+
+//       await cloudinary.v2.uploader.destroy(imageId);
+
+//       const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+//         folder: "avatars",
+//         width: 150,
+//       });
+
+//       existsUser.avatar = {
+//         public_id: myCloud.public_id,
+//         url: myCloud.secure_url,
+//       };
+//     }
+//     await existsUser.save();
+
+//     res.status(200).json({
+//       success: true,
+//       user: existsUser,
+//     });
+//   } catch (error) {
+//     return next(new ErrorHandler(error.message, 401));
+//   }
+// });
+
+// update user info
+// exports.updateUserInfo = catchAsyncErrors(async (req, res, next) => {
+//   try {
+//     const user = await User.findById(req.user.id);
+
+//     user.name = req.body.name;
+//     user.userName = req.body.userName;
+//     user.bio = req.body.bio;
+
+//     await user.save();
+
+//     res.status(201).json({
+//       success: true,
+//       user,
+//     });
+//   } catch (error) {
+//     return next(new ErrorHandler(error.message, 401));
+//   }
+// });

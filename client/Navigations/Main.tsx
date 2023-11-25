@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Tabs from "./Tabs";
 import SearchScreen from '../screens/SearchScreen';
 import UserProfileScreen from '../screens/UserProfileScreen';
+import CreateRepliesScreen from '../screens/CreateReplies';
+import PostDetailsScreen from '../screens/PostDetailsScreen';
 
 type Props = {};
 
@@ -16,6 +18,9 @@ const Main = (props: Props) => {
     >
       <Stack.Screen name="Home" component={Tabs} options={{headerShown:false}} />
       <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{headerShown:false}} />
+      <Stack.Screen name="CreateReplies" component={CreateRepliesScreen} options={{headerShown:false}} />
+      <Stack.Screen name="PostDetails" component={PostDetailsScreen} options={{headerShown:false}} />
+
 
     </Stack.Navigator>
   );

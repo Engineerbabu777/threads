@@ -2,13 +2,12 @@ const Post = require('../models/PostModel')
 const ErrorHandler = require('../utils/ErrorHandler.js')
 const catchAsyncErrors = require('../middleware/catchAsyncErrors')
 const UserModel = require('../models/UserModel.js')
-// const Notification = require("../models/NotificationModel");
+const Notification = require('../models/NotificationModel')
 const jwt = require('jsonwebtoken')
 
 // create post
 exports.createPost = catchAsyncErrors(async (req, res, next) => {
   try {
-
     // NO USER THEN NOT ALLOW TO POST!
 
     const post = new Post({
@@ -38,222 +37,218 @@ exports.createPost = catchAsyncErrors(async (req, res, next) => {
 exports.getAllPosts = catchAsyncErrors(async (req, res, next) => {
   try {
     const posts = await Post.find().sort({
-      createdAt: -1,
-    });
+      createdAt: -1
+    })
 
-    console.log({posts})
-    res.status(201).json({ success: true, posts });
-
-
+    console.log({ posts })
+    res.status(201).json({ success: true, posts })
   } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
+    return next(new ErrorHandler(error.message, 400))
   }
-});
+})
 
-// // add or remove likes
-// exports.updateLikes = catchAsyncErrors(async (req, res, next) => {
-//   try {
-//     const postId = req.body.postId;
+// add or remove likes
+exports.updateLikes = async (req, res) => {
+  try {
+    // GET THE POST ID:
+    const postId = req.body.postId
+    // FIND THAT POST:
+    const post = await Post.findById(postId)
+    // IS-LIKED BEFORE?:
+    const isLikedBefore = post.likes.find(
+      item => item.userId === req.body.user._id
+    )
 
-//     const post = await Post.findById(postId);
+    // IF LIKED BEFORE:
+    if (isLikedBefore) {
+      await Post.findByIdAndUpdate(postId, {
+        // REMOVING ID OF USER: MEANS NEED TO UN-LIKE
+        $pull: {
+          likes: {
+            userId: req.body.user?._id,
+            userName: req.body.user.name.replace(' ', '').toLowerCase(),
+            userAvatar: req.body.user.avatar.url
+          }
+        }
+      })
 
-//     const isLikedBefore = post.likes.find(
-//       (item) => item.userId === req.user.id
-//     );
+      if (req.body.user._id !== post.user._id) {
+        await Notification.deleteOne({
+          'creator._id': req.body.user._id,
+          userId: post.user._id,
+          type: 'Like'
+        })
+      }
 
-//     if (isLikedBefore) {
-//       await Post.findByIdAndUpdate(postId, {
-//         $pull: {
-//           likes: {
-//             userId: req.user.id,
-//           },
-//         },
-//       });
+      res.status(200).json({
+        success: true,
+        message: 'Like removed successfully'
+      })
+    } else {
+      // UPDATING THE POST LIKES!
+      await Post.updateOne(
+        { _id: postId },
+        {
+          $push: {
+            likes: {
+              name: req.body.user.name,
+              userName: req.body.user.name.replace(' ', '').toLowerCase(),
+              userId: req.body.user._id,
+              userAvatar: req.body.user.avatar.url,
+              postId
+            }
+          }
+        }
+      )
 
-//       if (req.user.id !== post.user._id) {
-//         await Notification.deleteOne({
-//           "creator._id": req.user.id,
-//           userId: post.user._id,
-//           type: "Like",
-//         });
-//       }
+      if (req.body.user._id !== post.user._id) {
+        await Notification.create({
+          creator: req.body.user,
+          type: 'Like',
+          title: post.title ? post.title : 'Liked your post',
+          userId: post.user._id,
+          postId: postId
+        })
+      }
 
-//       res.status(200).json({
-//         success: true,
-//         message: "Like removed successfully",
-//       });
-//     } else {
-//       await Post.updateOne(
-//         { _id: postId },
-//         {
-//           $push: {
-//             likes: {
-//               name: req.user.name,
-//               userName: req.user.userName,
-//               userId: req.user.id,
-//               userAvatar: req.user.avatar.url,
-//               postId,
-//             },
-//           },
-//         }
-//       );
+      res.status(200).json({
+        success: true,
+        message: 'Like Added successfully'
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    return next(new ErrorHandler(error.message, 400))
+  }
+}
 
-//       if (req.user.id !== post.user._id) {
-//         await Notification.create({
-//           creator: req.user,
-//           type: "Like",
-//           title: post.title ? post.title : "Liked your post",
-//           userId: post.user._id,
-//           postId: postId,
-//         });
-//       }
+// add replies in post
+exports.addReplies = async (req, res) => {
+  try {
+    const postId = req.body.postId
 
-//       res.status(200).json({
-//         success: true,
-//         message: "Like Added successfully",
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return next(new ErrorHandler(error.message, 400));
-//   }
-// });
+    console.log({body:req.body});
 
-// // add replies in post
-// exports.addReplies = catchAsyncErrors(async (req, res, next) => {
-//   try {
-//     const postId = req.body.postId;
+    const replyData = {
+      user: req.user,
+      title: req.body.title,
+      image: req.body.image
+        ? {
+            public_id: req.body.image,
+            url: req.body.image
+          }
+        : null,
+      likes: []
+    }
 
-//     let myCloud;
+    // Find the post by its ID
+    let post = await Post.findById(postId)
 
-//     if (req.body.image) {
-//       myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
-//         folder: "posts",
-//       });
-//     }
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      })
+    }
 
-//     const replyData = {
-//       user: req.user,
-//       title: req.body.title,
-//       image: req.body.image
-//         ? {
-//             public_id: myCloud.public_id,
-//             url: myCloud.secure_url,
-//           }
-//         : null,
-//       likes: [],
-//     };
+    // Add the reply data to the 'replies' array of the post
+    post.replies.push(replyData)
 
-//     // Find the post by its ID
-//     let post = await Post.findById(postId);
+    // Save the updated post
+    await post.save()
 
-//     if (!post) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Post not found",
-//       });
-//     }
+    res.status(201).json({
+      success: true,
+      post
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(400).json({err:true,message:error.message})
 
-//     // Add the reply data to the 'replies' array of the post
-//     post.replies.push(replyData);
+  }
+}
 
-//     // Save the updated post
-//     await post.save();
+// add or remove likes on replies
+exports.updateReplyLikes = async (req, res) => {
+  try {
+    const postId = req.body.postId
+    const replyId = req.body.replyId
+    const replyTitle = req.body.replyTitle
 
-//     res.status(201).json({
-//       success: true,
-//       post,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     return next(new ErrorHandler(error.message, 400));
-//   }
-// });
+    const post = await Post.findById(postId)
 
-// // add or remove likes on replies
-// exports.updateReplyLikes = catchAsyncErrors(async (req, res, next) => {
-//   try {
-//     const postId = req.body.postId;
-//     const replyId = req.body.replyId;
-//     const replyTitle = req.body.replyTitle;
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      })
+    }
 
-//     const post = await Post.findById(postId);
+    // Find the reply in the 'replies' array based on the given replyId
+    const reply = post.replies.find(reply => reply._id.toString() === replyId)
 
-//     if (!post) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Post not found",
-//       });
-//     }
+    if (!reply) {
+      return res.status(404).json({
+        success: false,
+        message: 'Reply not found'
+      })
+    }
 
-//     // Find the reply in the 'replies' array based on the given replyId
-//     const reply = post.replies.find(
-//       (reply) => reply._id.toString() === replyId
-//     );
+    const isLikedBefore = reply.likes.find(item => item.userId === req.body.user._id)
 
-//     if (!reply) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Reply not found",
-//       });
-//     }
+    if (isLikedBefore) {
+      // If liked before, remove the like from the reply.likes array
+      reply.likes = reply.likes.filter(like => like.userId !== req.body.user._id)
 
-//     const isLikedBefore = reply.likes.find(
-//       (item) => item.userId === req.user.id
-//     );
+      if (req.user.id !== post.user._id) {
+        await Notification.deleteOne({
+          'creator._id': req.body.user._id,
+          userId: post.user._id,
+          type: 'Reply',
+          postId: postId
+        })
+      }
 
-//     if (isLikedBefore) {
-//       // If liked before, remove the like from the reply.likes array
-//       reply.likes = reply.likes.filter((like) => like.userId !== req.user.id);
+      await post.save()
 
-//       if (req.user.id !== post.user._id) {
-//         await Notification.deleteOne({
-//           "creator._id": req.user.id,
-//           userId: post.user._id,
-//           type: "Reply",
-//           postId: postId,
-//         });
-//       }
+      return res.status(200).json({
+        success: true,
+        message: 'Like removed from reply successfully'
+      })
+    }
 
-//       await post.save();
+    // If not liked before, add the like to the reply.likes array
+    const newLike = {
+      name: req.body.user.name,
+      userName: req.body.user.name.replace(' ','').toLowerCase(),
+      userId: req.body.user._id,
+      userAvatar: req.body.user.avatar.url
+    }
 
-//       return res.status(200).json({
-//         success: true,
-//         message: "Like removed from reply successfully",
-//       });
-//     }
+    reply.likes.push(newLike)
 
-//     // If not liked before, add the like to the reply.likes array
-//     const newLike = {
-//       name: req.user.name,
-//       userName: req.user.userName,
-//       userId: req.user.id,
-//       userAvatar: req.user.avatar.url,
-//     };
+    if (req.body.user._id !== post.user._id) {
+      await Notification.create({
+        creator: req.body.user,
+        type: 'Like',
+        title: replyTitle ? replyTitle : 'Liked your Reply',
+        userId: post.user._id,
+        postId: postId
+      })
+    }
 
-//     reply.likes.push(newLike);
+    await post.save()
 
-//     if (req.user.id !== post.user._id) {
-//       await Notification.create({
-//         creator: req.user,
-//         type: "Like",
-//         title: replyTitle ? replyTitle : "Liked your Reply",
-//         userId: post.user._id,
-//         postId: postId,
-//       });
-//     }
-
-//     await post.save();
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Like added to reply successfully",
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     return next(new ErrorHandler(error.message, 400));
-//   }
-// });
+    return res.status(200).json({
+      success: true,
+      message: 'Like added to reply successfully'
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(400).json({err:true,message:error.message})
+    // return next(new ErrorHandler(error.message, 400))
+  }
+}
 
 // // add reply in replies
 // exports.addReply = catchAsyncErrors(async (req, res, next) => {

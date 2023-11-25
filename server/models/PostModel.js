@@ -41,7 +41,14 @@ const postSchema = new mongoose.Schema(
         title: {
           type: String
         },
-        image: { type: String },
+        image: {
+          public_id: {
+            type: String
+          },
+          url: {
+            type: String
+          }
+        },
         likesNumber: {
           type: Number,
           default: 0

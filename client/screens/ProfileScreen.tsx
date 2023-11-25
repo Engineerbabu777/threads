@@ -10,6 +10,7 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Dimensions} from 'react-native';
 import { logoutUser } from '../redux/actions/userActions';
+import PostCard from '../shared/PostCard';
 // import {loadUser, logoutUser} from '../../redux/actions/userAction';
 // import PostCard from '../components/PostCard';
 
@@ -152,8 +153,8 @@ const ProfileScreen = ({navigation}: Props) => {
         {active === 0 && (
           <>
             {data &&
-              data.map((item: any) => (<></>
-                // <PostCard navigation={navigation} key={item._id} item={item} />
+              data.map((item: any) => (
+                <PostCard navigation={navigation} key={item._id} item={item} />
               ))}
           </>
         )}
