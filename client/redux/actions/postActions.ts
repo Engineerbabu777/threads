@@ -196,7 +196,7 @@ export const addLikesToReply =
           : post,
       );
       dispatch({
-        type: 'getAllPostsSuccess',
+        type: getAllPostsSuccess,
         payload: updatedPosts,
       });
 
@@ -214,152 +214,152 @@ export const addLikesToReply =
     }
   };
 
-// // remove likes from reply
-// export const removeLikesFromReply =
-//   ({postId, posts, user, replyId}: LikesParams) =>
-//   async (dispatch: Dispatch<any>) => {
-//     try {
-//       const token = await AsyncStorage.getItem('token');
+// remove likes from reply
+export const removeLikesFromReply =
+  ({postId, posts, user, replyId}: LikesParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
 
-//       const updatedPosts = posts.map((post: any) =>
-//         post._id === postId
-//           ? {
-//               ...post,
-//               replies: post.replies.map((reply: any) =>
-//                 reply._id === replyId
-//                   ? {
-//                       ...reply,
-//                       likes: reply.likes.filter(
-//                         (like: any) => like.userId !== user._id,
-//                       ),
-//                     }
-//                   : reply,
-//               ),
-//             }
-//           : post,
-//       );
+      const updatedPosts = posts.map((post: any) =>
+        post._id === postId
+          ? {
+              ...post,
+              replies: post.replies.map((reply: any) =>
+                reply._id === replyId
+                  ? {
+                      ...reply,
+                      likes: reply.likes.filter(
+                        (like: any) => like.userId !== user._id,
+                      ),
+                    }
+                  : reply,
+              ),
+            }
+          : post,
+      );
 
-//       dispatch({
-//         type: 'getAllPostsSuccess',
-//         payload: updatedPosts,
-//       });
+      dispatch({
+        type: getAllPostsSuccess,
+        payload: updatedPosts,
+      });
 
-//       await axios.put(
-//         `${URI}/update-replies-react`,
-//         {postId, replyId},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         },
-//       );
-//     } catch (error: any) {
-//       console.log(error, 'error');
-//     }
-//   };
+      await axios.put(
+        `https://192.168.169.136:8080/api/v1/update-replies-react`,
+        {postId, replyId},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error: any) {
+      console.log(error, 'error');
+    }
+  };
 
-// // add likes to replies > reply
-// export const addLikesToRepliesReply =
-//   ({postId, posts, user, replyId, singleReplyId, title}: LikesParams) =>
-//   async (dispatch: Dispatch<any>) => {
-//     try {
-//       const token = await AsyncStorage.getItem('token');
+// add likes to replies > reply
+export const addLikesToRepliesReply =
+  ({postId, posts, user, replyId, singleReplyId, title}: LikesParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
 
-//       const updatedPosts = posts.map((post: any) =>
-//         post._id === postId
-//           ? {
-//               ...post,
-//               replies: post.replies.map((r: any) =>
-//                 r._id === replyId
-//                   ? {
-//                       ...r,
-//                       reply: r.reply.map((reply: any) =>
-//                         reply._id === singleReplyId
-//                           ? {
-//                               ...reply,
-//                               likes: [
-//                                 ...reply.likes,
-//                                 {
-//                                   userName: user.name,
-//                                   userId: user._id,
-//                                   userAvatar: user.avatar.url,
-//                                 },
-//                               ],
-//                             }
-//                           : reply,
-//                       ),
-//                     }
-//                   : r,
-//               ),
-//             }
-//           : post,
-//       );
+      const updatedPosts = posts.map((post: any) =>
+        post._id === postId
+          ? {
+              ...post,
+              replies: post.replies.map((r: any) =>
+                r._id === replyId
+                  ? {
+                      ...r,
+                      reply: r.reply.map((reply: any) =>
+                        reply._id === singleReplyId
+                          ? {
+                              ...reply,
+                              likes: [
+                                ...reply.likes,
+                                {
+                                  userName: user.name,
+                                  userId: user._id,
+                                  userAvatar: user.avatar.url,
+                                },
+                              ],
+                            }
+                          : reply,
+                      ),
+                    }
+                  : r,
+              ),
+            }
+          : post,
+      );
 
-//       dispatch({
-//         type: 'getAllPostsSuccess',
-//         payload: updatedPosts,
-//       });
-//       await axios.put(
-//         `${URI}/update-reply-react`,
-//         {postId, replyId, singleReplyId, replyTitle: title},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         },
-//       );
-//     } catch (error) {
-//       console.log(error, 'error');
-//     }
-//   };
+      dispatch({
+        type: 'getAllPostsSuccess',
+        payload: updatedPosts,
+      });
+      await axios.put(
+        `https://192.168.169.136:8080/api/v1/update-reply-react`,
+        {postId, replyId, singleReplyId, replyTitle: title},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      console.log(error, 'error');
+    }
+  };
 
-// // remove likes from replies > reply
-// export const removeLikesFromRepliesReply =
-//   ({postId, posts, user, replyId, singleReplyId}: LikesParams) =>
-//   async (dispatch: Dispatch<any>) => {
-//     try {
-//       const token = await AsyncStorage.getItem('token');
+// remove likes from replies > reply
+export const removeLikesFromRepliesReply =
+  ({postId, posts, user, replyId, singleReplyId}: LikesParams) =>
+  async (dispatch: Dispatch<any>) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
 
-//       const updatedPosts = posts.map((post: any) =>
-//         post._id === postId
-//           ? {
-//               ...post,
-//               replies: post.replies.map((r: any) =>
-//                 r._id === replyId
-//                   ? {
-//                       ...r,
-//                       reply: r.reply.map((reply: any) =>
-//                         reply._id === singleReplyId
-//                           ? {
-//                               ...reply,
-//                               likes: reply.likes.filter(
-//                                 (like: any) => like.userId !== user._id,
-//                               ),
-//                             }
-//                           : reply,
-//                       ),
-//                     }
-//                   : r,
-//               ),
-//             }
-//           : post,
-//       );
+      const updatedPosts = posts.map((post: any) =>
+        post._id === postId
+          ? {
+              ...post,
+              replies: post.replies.map((r: any) =>
+                r._id === replyId
+                  ? {
+                      ...r,
+                      reply: r.reply.map((reply: any) =>
+                        reply._id === singleReplyId
+                          ? {
+                              ...reply,
+                              likes: reply.likes.filter(
+                                (like: any) => like.userId !== user._id,
+                              ),
+                            }
+                          : reply,
+                      ),
+                    }
+                  : r,
+              ),
+            }
+          : post,
+      );
 
-//       dispatch({
-//         type: 'getAllPostsSuccess',
-//         payload: updatedPosts,
-//       });
+      dispatch({
+        type: 'getAllPostsSuccess',
+        payload: updatedPosts,
+      });
 
-//       await axios.put(
-//         `${URI}/update-reply-react`,
-//         {postId, replyId, singleReplyId},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         },
-//       );
-//     } catch (error: any) {
-//       console.log(error, 'error');
-//     }
-//   };
+      await axios.put(
+        `https://192.168.169.136:8080/api/v1/update-reply-react`,
+        {postId, replyId, singleReplyId},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error: any) {
+      console.log(error, 'error');
+    }
+  };

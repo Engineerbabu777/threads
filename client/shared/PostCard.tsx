@@ -73,15 +73,15 @@ import PostDetailsCard from './PostCardDetails';
     };
   
     const deletePostHandler = async (e: any) => {
-    //   await axios
-    //     .delete(`http://192.168.169.136/api/v1/delete-post/${e}`, {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     })
-    //     .then(res => {
-    //       getAllPosts()(dispatch);
-    //     });
+      await axios
+        .delete(`http://192.168.169.136:8080/api/v1/delete-post/${e}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(res => {
+          getAllPosts()(dispatch);
+        });
     };
   
     useEffect(() => {

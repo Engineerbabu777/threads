@@ -4,7 +4,8 @@ const {
   getAllPosts,
   updateLikes,
   addReplies,
-  updateReplyLikes
+  updateReplyLikes,
+  deletePost
   //   updateLikes,
   //   addReplies,
   //   updateReplyLikes,
@@ -32,6 +33,6 @@ router.route('/update-replies-react').put(updateReplyLikes)
 //   .route("/update-reply-react")
 //   .put(isAuthenticatedUser, updateRepliesReplyLike);
 
-// router.route("/delete-post/:id").delete(isAuthenticatedUser, deletePost);
+router.route("/delete-post/:id").delete(deletePost);
 
 module.exports = router

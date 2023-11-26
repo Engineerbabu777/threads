@@ -29,9 +29,9 @@ const LoginScreen = ({ navigation }: Props) => {
     }
 
     if (isAuthenticated) {
+      loadUser()(dispatch);
       navigation.navigate('Home')
       Alert.alert('Login successful!')
-      loadUser()(dispatch);
     }
   }, [isAuthenticated, error])
 

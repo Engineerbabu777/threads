@@ -14,6 +14,7 @@ import getTimeDuration from '../common/TimeGenerator';
 import axios from 'axios';
 // import {URI} from '../../redux/URI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addLikes, addLikesToReply, removeLikes } from '../redux/actions/postActions';
 
 type Props = {
   navigation: any;
@@ -46,68 +47,68 @@ const PostDetailsCard = ({
   const formattedDuration = getTimeDuration(time);
 
   const profileHandler = async (e: any) => {
-    // await axios
-    //   .get(`${URI}/get-user/${e._id}`, {
-    //     headers: {Authorization: `Bearer ${token}`},
-    //   })
-    //   .then(res => {
-    //     if (res.data.user._id !== user._id) {
-    //       navigation.navigate('UserProfile', {
-    //         item: res.data.user,
-    //       });
-    //     } else {
-    //       navigation.navigate('Profile');
-    //     }
-    //   });
+    await axios
+      .get(`http://192.168.169.136:8080/get-user/${e?._id}`, {
+        headers: {Authorization: `Bearer ${token}`},
+      })
+      .then(res => {
+        if (res.data.user._id !== user._id) {
+          navigation.navigate('UserProfile', {
+            item: res.data.user,
+          });
+        } else {
+          navigation.navigate('Profile');
+        }
+      });
   };
 
   const reactsHandler = (e: any) => {
-    // if (item.likes.length !== 0) {
-    //   const isLikedBefore = item.likes.find((i: any) => i.userId === user._id);
-    //   if (isLikedBefore) {
-    //     removeLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
-    //   } else {
-    //     addLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
-    //   }
-    // } else {
-    //   addLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
-    // }
+    if (item.likes.length !== 0) {
+      const isLikedBefore = item.likes.find((i: any) => i.userId === user._id);
+      if (isLikedBefore) {
+        removeLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
+      } else {
+        addLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
+      }
+    } else {
+      addLikes({postId: postId ? postId : e._id, posts, user})(dispatch);
+    }
   };
 
   const replyReactHanlder = (e: any) => {
-    // if (e.likes.length !== 0) {
-    //   const isLikedBefore = e.likes.find((i: any) => i.userId === user._id);
-    //   if (isLikedBefore) {
-    //     removeLikesFromReply({
-    //       postId: postId ? postId : e._id,
-    //       posts,
-    //       replyId: e._id,
-    //       user,
-    //       title: e.title,
-    //     })(dispatch);
-    //   } else {
-    //     addLikesToReply({
-    //       postId: postId ? postId : e._id,
-    //       posts,
-    //       replyId: e._id,
-    //       user,
-    //       title: e.title,
-    //     })(dispatch);
-    //   }
-    // } else {
-    //   addLikesToReply({
-    //     postId: postId ? postId : e._id,
-    //     posts,
-    //     replyId: e._id,
-    //     user,
-    //     title: e.title,
-    //   })(dispatch);
-    // }
+    if (e.likes.length !== 0) {
+      const isLikedBefore = e.likes.find((i: any) => i.userId === user._id);
+      if (isLikedBefore) {
+        // removeLikesFromReply({
+        //   postId: postId ? postId : e._id,
+        //   posts,
+        //   replyId: e._id,
+        //   user,
+        //   title: e.title,
+        // })(dispatch);
+      } else {
+        addLikesToReply({
+          postId: postId ? postId : e._id,
+          posts,
+          replyId: e._id,
+          user,
+          title: e.title,
+        })(dispatch);
+      }
+    } else {
+      addLikesToReply({
+        postId: postId ? postId : e._id,
+        posts,
+        replyId: e._id,
+        user,
+        title: e.title,
+      })(dispatch);
+    }
   };
 
   const handlePress = async (e: any) => {
-    // setActive(!active);
-    // await AsyncStorage.setItem('replyId', e._id);
+    setActive(!active);
+    await AsyncStorage.setItem('replyId', e._id);
   };
 
   const repliesReplyReactHandler = async (e: any) => {
@@ -146,13 +147,13 @@ const PostDetailsCard = ({
   };
 
   useEffect(() => {
-    // if(users){
-    //   const updatedUsers = [...users, user];
-    //   const userData = updatedUsers.find((user: any) =>
-    //       user._id === item.user._id
-    //    );
-    //    setUserInfo(userData);
-    //  }
+    if(users){
+      const updatedUsers = [...users, user];
+      const userData = updatedUsers.find((user: any) =>
+          user._id === item.user._id
+       );
+       setUserInfo(userData);
+     }
   }, [users]);
 
   return (

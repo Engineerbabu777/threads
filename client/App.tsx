@@ -10,6 +10,13 @@ import { Provider, useDispatch, useSelector } from 'react-redux'
 import { getAllUsers, loadUser } from './redux/actions/userActions'
 import Loader from './common/Loader'
 import { NativeBaseProvider } from 'native-base'
+
+import {LogBox} from 'react-native';
+// import {StatusBar} from 'native-base';
+// import { getAllPosts } from './redux/actions/postAction';
+LogBox.ignoreAllLogs();
+
+
 NativeWindStyleSheet.setOutput({
   default: 'native'
 })
